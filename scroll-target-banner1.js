@@ -89,7 +89,7 @@ window.scrollTargetBanner = function (images, link, time, options) {
    *  1) 일반조건
    */
   if (isMobileinstagram()) {
-    debugPrint("Threads - OK");
+    debugPrint("instagram - OK");
     // 페이스북 브라우저
     if (isReturningWithinPeriod()) {
       // 이미 방문했던 사용자 + 일정 시간 내 다시 방문
@@ -105,7 +105,7 @@ window.scrollTargetBanner = function (images, link, time, options) {
       debugPrint("일정시간 이후 방문");
     }
   } else {
-    debugPrint("Threads - NO");
+    debugPrint("instagram - NO");
     // 그 외.. 무조건 랜덤하게 노출
     _isScrollRandom = true;
     timeControl(false);
@@ -114,12 +114,12 @@ window.scrollTargetBanner = function (images, link, time, options) {
   }
   debugPrint("_isScrollRandom: " + _isScrollRandom);
   debugPrint("_scrollLockPosition: " + _scrollLockPosition);
-  function isMobileThreads() {
-    if (_options.forceTH) return true;
+  function isMobileinstagram() {
+    if (_options.forcein) return true;
     return (
       /Mobi|Android|iPhone|iPad|iPod|BlackBerry|Opera Mini|IEMobile|WPDesktop/i.test(
         navigator.userAgent
-      ) && navigator.userAgent.indexOf("[TH") >= 0
+      ) && navigator.userAgent.indexOf("[in") >= 0
     );
   }
 

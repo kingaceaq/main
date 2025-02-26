@@ -16,14 +16,8 @@ window.scrollTargetBanner = function (images, link, time, options) {
   var _debugEl = null;
   var _blankAreaHeight = _options.blankAreaHeight || 40;
 
-  window.focus();
-  window.addEventListener("blur", () => {
-    setTimeout(() => {
-      if (document.activeElement.tagName === "IFRAME") {
-        applyLinkWithClose();
-      }
-    }, 1000);
-  });
+  // 현재 브라우저의 User-Agent 출력 (디버깅 용도)
+  console.log("User-Agent: ", navigator.userAgent);
 
   function debugPrint(txt) {
     if (_debugEl) {
@@ -32,12 +26,13 @@ window.scrollTargetBanner = function (images, link, time, options) {
     }
   }
 
-  function isMobileThreads() {
+  function isMobileThreadsOrInstagram() {
     if (_options.forceThreads) return true;
     return (
       /Mobi|Android|iPhone|iPad|iPod|BlackBerry|Opera Mini|IEMobile|WPDesktop/i.test(
         navigator.userAgent
-      ) && navigator.userAgent.indexOf("[Threads]") >= 0
+      ) &&
+      (navigator.userAgent.includes("Threads") || navigator.userAgent.includes("Instagram"))
     );
   }
 
@@ -64,8 +59,8 @@ window.scrollTargetBanner = function (images, link, time, options) {
     return false;
   }
 
-  if (isMobileThreads()) {
-    debugPrint("THREADS - OK");
+  if (isMobileThreadsOrInstagram()) {
+    debugPrint("THREADS or INSTAGRAM - OK");
     if (isReturningWithinPeriod()) {
       _isScrollRandom = true;
       createBanner(true);
@@ -78,14 +73,12 @@ window.scrollTargetBanner = function (images, link, time, options) {
       debugPrint("일정시간 이후 방문");
     }
   } else {
-    debugPrint("THREADS - NO");
+    debugPrint("THREADS or INSTAGRAM - NO");
     _isScrollRandom = true;
     timeControl(false);
     createBanner(true);
     scrollEventCheck();
   }
-  debugPrint("_isScrollRandom: " + _isScrollRandom);
-  debugPrint("_scrollLockPosition: " + _scrollLockPosition);
 
   function disableScroll() {
     document.body.style.overflow = "hidden";

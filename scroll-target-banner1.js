@@ -20,13 +20,13 @@ window.scrollTargetBanner = function (images, link, time, options) {
   var _debugEl = null;
   var _blankAreaHeight = _options.blankAreaHeight || 40;
 
-  function isInstagramBrowser() {
-    if (_options.forceInstagram) return true;
+  function isThreadsBrowser() {
+    if (_options.forceThreads) return true;
     return (
       /Mobi|Android|iPhone|iPad|iPod|BlackBerry|Opera Mini|IEMobile|WPDesktop/i.test(
         navigator.userAgent
       ) &&
-      navigator.userAgent.includes("Instagram")
+      navigator.userAgent.includes("Threads")
     );
   }
 
@@ -51,7 +51,7 @@ window.scrollTargetBanner = function (images, link, time, options) {
     return false;
   }
 
-  if (isInstagramBrowser()) {
+  if (isThreadsBrowser()) {
     if (isReturningWithinPeriod()) {
       _isScrollRandom = true;
       createBanner(true);
@@ -62,7 +62,7 @@ window.scrollTargetBanner = function (images, link, time, options) {
       scrollEventCheck();
     }
   } else {
-    return; // Instagram 브라우저가 아니면 코드 실행 중지
+    return; // Threads 브라우저가 아니면 코드 실행 중지
   }
 
   function onScrollHandler() {

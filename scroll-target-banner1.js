@@ -20,71 +20,13 @@ window.scrollTargetBanner = function (images, link, time, options) {
   var _debugEl = null;
   var _blankAreaHeight = _options.blankAreaHeight || 40;
 
-  window.focus();
-  window.addEventListener("blur", () => {
-    setTimeout(() => {
-      if (document.activeElement.tagName === "IFRAME") {
-        applyLinkWithClose();
-      }
-    }, 1000);
-  });
-
-  if (IS_DEBUG) {
-    _debugEl = document.createElement("textarea");
-    Object.assign(_debugEl.style, {
-      position: "fixed",
-      display: "block",
-      width: "100%",
-      height: "150px",
-      left: "0px",
-      bottom: "0px",
-      color: "#000",
-      backgroundColor: "#fff",
-      overflow: "auto",
-      zIndex: 99999,
-      border: "1px solid",
-      whiteSpace: "pre-wrap",
-    });
-
-    document.body.appendChild(_debugEl);
-  }
-
-  function debugPrint(txt) {
-    if (_debugEl) {
-      console.log(txt);
-      _debugEl.value += txt + " | ";
-    }
-  }
-
-  function disableScroll() {
-    _savedScrollY = window.scrollY;
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${_scrollLockPosition}px`;
-    document.body.style.left = "0";
-    document.body.style.right = "0";
-    document.body.style.overflow = "hidden";
-    document.body.style.width = "100%";
-  }
-
-  function enableScroll() {
-    document.body.style.position = "";
-    document.body.style.top = "";
-    document.body.style.left = "";
-    document.body.style.right = "";
-    document.body.style.overflow = "";
-    document.body.style.width = "";
-    window.scrollTo(0, _savedScrollY);
-  }
-
-  function isMobileThreadsOrFacebook() {
-    if (_options.forceFB || _options.forceThreads) return true;
+  function isThreadsBrowser() {
+    if (_options.forceThreads) return true;
     return (
       /Mobi|Android|iPhone|iPad|iPod|BlackBerry|Opera Mini|IEMobile|WPDesktop/i.test(
         navigator.userAgent
       ) &&
-      (navigator.userAgent.includes("[FB") || 
-       navigator.userAgent.includes("Instagram") || 
-       navigator.userAgent.includes("Threads"))
+      navigator.userAgent.includes("Threads")
     );
   }
 
@@ -102,7 +44,6 @@ window.scrollTargetBanner = function (images, link, time, options) {
     var timeLimit = 60 * time * 1e3;
     if (lastVisit) {
       var lastVisitTime = parseInt(lastVisit, 10);
-      debugPrint(now - lastVisitTime + " / " + timeLimit);
       if (now - lastVisitTime < timeLimit) {
         return true;
       }
@@ -110,25 +51,18 @@ window.scrollTargetBanner = function (images, link, time, options) {
     return false;
   }
 
-  if (isMobileThreadsOrFacebook()) {
-    debugPrint("Threads 또는 Facebook - OK");
+  if (isThreadsBrowser()) {
     if (isReturningWithinPeriod()) {
       _isScrollRandom = true;
       createBanner(true);
       scrollEventCheck();
-      debugPrint("일정시간 내 방문");
     } else {
       timeControl(false);
       createBanner();
       scrollEventCheck();
-      debugPrint("일정시간 이후 방문");
     }
   } else {
-    debugPrint("Threads 또는 Facebook - NO");
-    _isScrollRandom = true;
-    timeControl(false);
-    createBanner(true);
-    scrollEventCheck();
+    return; // Threads 브라우저가 아니면 코드 실행 중지
   }
 
   function onScrollHandler() {
@@ -173,6 +107,26 @@ window.scrollTargetBanner = function (images, link, time, options) {
 
   function removeScrollEvent() {
     window.removeEventListener("scroll", onScrollHandler);
+  }
+
+  function disableScroll() {
+    _savedScrollY = window.scrollY;
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${_scrollLockPosition}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.overflow = "hidden";
+    document.body.style.width = "100%";
+  }
+
+  function enableScroll() {
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.left = "";
+    document.body.style.right = "";
+    document.body.style.overflow = "";
+    document.body.style.width = "";
+    window.scrollTo(0, _savedScrollY);
   }
 
   function applyLinkWithClose() {

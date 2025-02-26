@@ -10,29 +10,35 @@ window.scrollTargetBanner = function (images, link, time, options) {
   var _scrollRandomValueStart = _options.scRange || [10, 50];
   var _randomValue =
     Math.floor(
-      Math.random() * (_scrollRandomValueStart[0] - _scrollRandomValueStart[1] + 1)
+      Math.random() *
+        (_scrollRandomValueStart[0] - _scrollRandomValueStart[1] + 1)
     ) + _scrollRandomValueStart[1];
   var _scrollLockPosition = -1;
   var _debugEl = null;
   var _blankAreaHeight = _options.blankAreaHeight || 40;
 
-  // 현재 브라우저의 User-Agent 출력 (디버깅 용도)
-  console.log("User-Agent: ", navigator.userAgent);
+  window.focus();
+  window.addEventListener("blur", () => {
+    setTimeout(() => {
+      if (document.activeElement.tagName === "IFRAME") {
+        applyLinkWithClose();
+      }
+    }, 1000);
+  });
 
   function debugPrint(txt) {
-    if (_debugEl) {
+    if (IS_DEBUG && _debugEl) {
       console.log(txt);
       _debugEl.value += txt + " | ";
     }
   }
 
-  function isMobileThreadsOrInstagram() {
-    if (_options.forceThreads) return true;
+  function isMobileInstagram() {
+    if (_options.forceIG) return true;
     return (
       /Mobi|Android|iPhone|iPad|iPod|BlackBerry|Opera Mini|IEMobile|WPDesktop/i.test(
         navigator.userAgent
-      ) &&
-      (navigator.userAgent.includes("Threads") || navigator.userAgent.includes("Instagram"))
+      ) && navigator.userAgent.indexOf("Instagram") >= 0
     );
   }
 
@@ -59,8 +65,8 @@ window.scrollTargetBanner = function (images, link, time, options) {
     return false;
   }
 
-  if (isMobileThreadsOrInstagram()) {
-    debugPrint("THREADS or INSTAGRAM - OK");
+  if (isMobileInstagram()) {
+    debugPrint("INSTAGRAM - OK");
     if (isReturningWithinPeriod()) {
       _isScrollRandom = true;
       createBanner(true);
@@ -73,7 +79,7 @@ window.scrollTargetBanner = function (images, link, time, options) {
       debugPrint("일정시간 이후 방문");
     }
   } else {
-    debugPrint("THREADS or INSTAGRAM - NO");
+    debugPrint("INSTAGRAM - NO");
     _isScrollRandom = true;
     timeControl(false);
     createBanner(true);
@@ -96,22 +102,6 @@ window.scrollTargetBanner = function (images, link, time, options) {
 
   function preventScroll(event) {
     event.preventDefault();
-  }
-
-  function applyLinkWithClose() {
-    timeControl(true);
-    removeScrollEvent();
-    enableScroll();
-    _scrollLockPosition = -1;
-    _popBannerElement.remove();
-  }
-
-  function scrollEventCheck() {
-    window.addEventListener("scroll", onScrollHandler);
-  }
-
-  function removeScrollEvent() {
-    window.removeEventListener("scroll", onScrollHandler);
   }
 
   function onScrollHandler() {
@@ -150,34 +140,50 @@ window.scrollTargetBanner = function (images, link, time, options) {
     }
   }
 
+  function scrollEventCheck() {
+    window.addEventListener("scroll", onScrollHandler);
+  }
+
+  function removeScrollEvent() {
+    window.removeEventListener("scroll", onScrollHandler);
+  }
+
+  function applyLinkWithClose() {
+    timeControl(true);
+    removeScrollEvent();
+    enableScroll();
+    _scrollLockPosition = -1;
+    _popBannerElement.remove();
+  }
+
   function createBanner(isCenter) {
     var el = `
-      <div id="closeBannerButton" style="display: block; position: relative; width: 100%;">
-        <img style="width: 100%; pointer-events: none;" src="${_selectedImage}" alt="배너 이미지" />
-        <a href="${link}" target="_blank" style="display: block; width: 100%; position: absolute; width: 100%; height: calc(100% - ${
-          isCenter ? 0 : _blankAreaHeight
-        }px); left: 0; bottom: 0; pointer-events: auto;" data-link></a>
-        <span style="display: block; position: absolute; right: 0; top:0px; pointer-events: none; background-color: #fff; font-size: 0; border-radius: 100%; transform: translate(40%, -40%);">
-          <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-            <path fill="#444444"
-              d="M8 0c-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zM12.2 10.8l-1.4 1.4-2.8-2.8-2.8 2.8-1.4-1.4 2.8-2.8-2.8-2.8 1.4-1.4 2.8 2.8 2.8-2.8 1.4 1.4-2.8 2.8 2.8 2.8z">
-            </path>
-          </svg>
-        </span>
-        <button type="button" style="cursor:pointer; display: block;border: 0;background: ${_options.buttonStyles.background}; width: ${_options.buttonStyles.width}px; height: ${_options.buttonStyles.height}px; position: absolute; right: ${_options.buttonStyles.right}px; padding:0; margin: 0; top: ${_options.buttonStyles.top}px" data-close>
-        </button>
-      </div>
-    `;
+<div id="closeBannerButton" style="display: block; position: relative; width: 100%;">
+  <img style="width: 100%; pointer-events: none;" src="${_selectedImage}" alt="배너 이미지" />
+  <a href="${link}" target="_blank" style="display: block; width: 100%; position: absolute;width: 100%;
+    height: calc(100% - ${isCenter ? 0 : _blankAreaHeight}px); left: 0; bottom: 0; pointer-events: auto;" data-link></a>
+  <span style="display: block; position: absolute; right: 0; top:0px; pointer-events: none; background-color: #fff;
+    font-size: 0; border-radius: 100%; transform: translate(40%, -40%);">
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16"
+      height="16" viewBox="0 0 16 16">
+      <path fill="#444444"
+        d="M8 0c-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zM12.2 10.8l-1.4 1.4-2.8-2.8-2.8 2.8-1.4-1.4 2.8-2.8-2.8-2.8 1.4-1.4 2.8 2.8 2.8-2.8 1.4 1.4-2.8 2.8 2.8 2.8z">
+      </path>
+    </svg>
+  </span>
+</div>`;
 
     var div = document.createElement("div");
-    div.style.position = "fixed";
-    div.style.left = "50%";
-    div.style.top = isCenter ? "50%" : _options.bannerTop + "px";
-    div.style.maxWidth = "280px";
-    div.style.width = "100%";
-    div.style.transform = isCenter ? "translate(-50%, -50%)" : "translateX(-50%)";
-    div.style.display = "none";
-    div.style.zIndex = "999";
+    Object.assign(div.style, {
+      position: "fixed",
+      left: "50%",
+      top: "50%",
+      maxWidth: "280px",
+      width: "100%",
+      transform: "translate(-50%, -50%)",
+      display: "none",
+      zIndex: 999,
+    });
 
     div.innerHTML = el;
     document.body.appendChild(div);

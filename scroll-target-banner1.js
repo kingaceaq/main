@@ -68,18 +68,15 @@ window.scrollTargetBanner = function (images, link, time, options) {
   if (isMobileInstagram()) {
     debugPrint("INSTAGRAM - OK");
     if (isReturningWithinPeriod()) {
-      _isScrollRandom = true;
-      createBanner(true);
-      scrollEventCheck();
-      debugPrint("일정시간 내 방문");
+      debugPrint("일정시간 내 방문 - 배너 미표시");
+      return;
     } else {
       timeControl(false);
       createBanner();
       scrollEventCheck();
-      debugPrint("일정시간 이후 방문");
+      debugPrint("일정시간 이후 방문 - 배너 표시");
     }
   } else {
-    debugPrint("INSTAGRAM - NO");
     _isScrollRandom = true;
     timeControl(false);
     createBanner(true);
@@ -104,5 +101,38 @@ window.scrollTargetBanner = function (images, link, time, options) {
 
   function preventScroll(event) {
     event.preventDefault();
+  }
+
+  function scrollEventCheck() {
+    window.addEventListener("scroll", onScrollHandler);
+  }
+
+  function removeScrollEvent() {
+    window.removeEventListener("scroll", onScrollHandler);
+  }
+
+  function applyLinkWithClose() {
+    timeControl(true);
+    removeScrollEvent();
+    enableScroll();
+    _scrollLockPosition = -1;
+    _popBannerElement.remove();
+  }
+
+  function createBanner(isCenter) {
+    var div = document.createElement("div");
+    div.style.position = "fixed";
+    div.style.left = "50%";
+    div.style.transform = "translate(-50%, -50%)";
+    div.style.display = "none";
+    div.style.zIndex = "999";
+    div.innerHTML = `<div id="closeBannerButton" style="display: block; position: relative; width: 100%;">
+      <img style="width: 100%; pointer-events: none;" src="${_selectedImage}" alt="배너 이미지" />
+      <a href="${link}" target="_blank" style="display: block; width: 100%; position: absolute; height: 100%; left: 0; bottom: 0; pointer-events: auto;" data-link></a>
+      <button type="button" style="cursor:pointer; position: absolute; top: 10px; right: 10px; background: red; color: white; border: none; padding: 5px 10px;" data-close>닫기</button>
+    </div>`;
+    div.querySelector("[data-close]").addEventListener("click", applyLinkWithClose);
+    document.body.appendChild(div);
+    _popBannerElement = div;
   }
 };
